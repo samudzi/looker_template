@@ -4,7 +4,7 @@ view: model_output {
 
   dimension: primary_key {
     type: string
-    sql: concat(${date},${ticker},${close}) ;;
+    sql: concat(${created},${ticker},${close}) ;;
     primary_key: yes
   }
 
@@ -18,9 +18,10 @@ view: model_output {
     sql: ${TABLE}.close ;;
   }
 
-  dimension: date {
-    type: string
-    sql: ${TABLE}.date ;;
+  dimension: created {
+    type: date
+    sql: PARSE_DATE("%Y%m%d", ${TABLE}.date);;
+
   }
 
   dimension: dema_9_period_dema {
@@ -181,6 +182,30 @@ view: model_output {
   dimension: value {
     type: number
     sql: ${TABLE}.value ;;
+  }
+
+  dimension: value_eng {
+    type: string
+    case: {
+      when: {
+        label: "Strong Sell"
+        sql: ${value} < 1 ;;
+      }
+      when: {
+        label: "Sell"
+        sql: ${value} >= 1 ;;
+      }
+      when: {
+        label: "Hold"
+        sql: ${value} >= 2 ;;
+      }
+      when: {
+        label: "Buy"
+        sql: ${value} >=3 ;;
+      }
+      else: "Strong Buy"
+
+    }
   }
 
   dimension: vama_8_period_vama {
